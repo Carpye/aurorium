@@ -3,8 +3,8 @@ import { GeistSans } from "geist/font/sans"
 import "./globals.css"
 import { getServerSession } from "next-auth"
 import Providers from "@/components/Providers"
-import { authOptions } from "./api/auth/[...nextauth]/route"
 import Navbar from "@/components/Navbar"
+import { authOptions } from "@/lib/auth"
 
 export const metadata: Metadata = {
   title: "Aurorium",
