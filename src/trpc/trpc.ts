@@ -1,4 +1,3 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { TRPCError, initTRPC } from "@trpc/server"
 import { getServerSession } from "next-auth"
 /**
