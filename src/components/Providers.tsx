@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react"
 import { ReactNode, useState } from "react"
 import { trpc } from "@/app/_trpc/client"
 import { Toaster } from "./ui/sonner"
+import { absoluteUrl } from "@/lib/utils"
 
 interface ProvidersProps {
   session: Session | null
@@ -18,7 +19,7 @@ export default function Providers({ session, children }: ProvidersProps) {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: "http://localhost:3000/api/trpc",
+          url: absoluteUrl("/api/trpc"),
           // You can pass any HTTP headers you wish here
           // async headers() {
           //   return {
