@@ -4,7 +4,12 @@ import { getServerSession } from "next-auth"
  * Initialization of tRPC backend
  * Should be done only once per backend!
  */
-const t = initTRPC.create()
+
+type Context = {
+  foo: string
+}
+
+const t = initTRPC.context<Context>().create()
 const middleware = t.middleware
 /**
  * Export reusable router and procedure helpers
@@ -26,6 +31,8 @@ const isAuth = middleware(async (opts) => {
 })
 
 export const router = t.router
-export const publicProcedure = t.procedure
 
+export const createCallerFactory = t.createCallerFactory
+
+export const publicProcedure = t.procedure
 export const authorizedProcedure = t.procedure.use(isAuth)

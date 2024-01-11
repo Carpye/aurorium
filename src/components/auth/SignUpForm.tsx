@@ -34,7 +34,7 @@ export default function SignUpForm() {
     },
   })
 
-  const signUp = trpc.signUp.useMutation({
+  const signUp = trpc.user.create.useMutation({
     onSuccess: async ({ user, credentials }) => {
       const res = await signIn("credentials", {
         email: credentials.email,
