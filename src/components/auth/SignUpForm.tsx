@@ -15,8 +15,14 @@ import { toast } from "sonner"
 import { signIn } from "next-auth/react"
 import { trpc } from "@/app/_trpc/client"
 import { Button } from "../ui/button"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 export default function SignUpForm() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof SignUpValidator>>({
     resolver: zodResolver(SignUpValidator),
     defaultValues: {
@@ -29,14 +35,21 @@ export default function SignUpForm() {
   })
 
   const signUp = trpc.signUp.useMutation({
-    onSuccess: ({ user, credentials }) => {
-      signIn("credentials", {
+    onSuccess: async ({ user, credentials }) => {
+      const res = await signIn("credentials", {
         email: credentials.email,
         password: credentials.password,
-        callbackUrl: "/profile",
+        // callbackUrl: "/profile",
+        redirect: false,
       })
+
+      if (res?.ok) {
+        setIsLoading(false)
+        router.push("/profile")
+      }
     },
     onError: ({ message }) => {
+      setIsLoading(false)
       toast.error(
         message === "FORBIDDEN"
           ? "Użytkownik już istnieje. Zamiast tego spróbuj się zalogować."
@@ -48,7 +61,7 @@ export default function SignUpForm() {
   function onSubmit(values: z.infer<typeof SignUpValidator>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-
+    setIsLoading(true)
     signUp.mutate(values)
   }
 
@@ -127,8 +140,12 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="self-center">
-          Zarejestruj
+        <Button type="submit" className="self-center" disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className=" animate-spin" />
+          ) : (
+            <span>Zarejestruj</span>
+          )}
         </Button>
       </form>
     </Form>

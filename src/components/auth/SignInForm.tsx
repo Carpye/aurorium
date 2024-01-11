@@ -14,8 +14,16 @@ import * as z from "zod"
 import { Button } from "../ui/button"
 
 import { Input } from "../ui/input"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function SignInForm() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof SignInValidator>>({
     resolver: zodResolver(SignInValidator),
     defaultValues: {
@@ -25,13 +33,26 @@ export default function SignInForm() {
   })
 
   async function onSubmit(values: z.infer<typeof SignInValidator>) {
+    setIsLoading(true)
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const user = await signIn("credentials", {
+    const res = await signIn("credentials", {
       email: values.email,
       password: values.password,
-      callbackUrl: "/profile",
+      // callbackUrl: "/profile",
+      redirect: false,
     })
+
+    if (res?.ok) {
+      router.push("/profile")
+      setIsLoading(false)
+    }
+
+    if (res?.error) {
+      setIsLoading(false)
+      if (res.status === 401) toast.error("Błędne dane logowania.")
+      else toast.error("Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.")
+    }
   }
 
   return (
@@ -70,8 +91,12 @@ export default function SignInForm() {
             </FormItem>
           )}
         />{" "}
-        <Button type="submit" className="self-center">
-          Zaloguj
+        <Button type="submit" className="self-center" disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className=" animate-spin" />
+          ) : (
+            <span>Zaloguj</span>
+          )}
         </Button>
       </form>
     </Form>
